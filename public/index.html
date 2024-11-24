@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Monitor de Conexión a Internet</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Monitor de Red</h1>
+
+  <!-- Contenedor de estados de dispositivos -->
+  <div id="device-status-container" class="device-status-container"></div>
+
+  <!-- Contenedor de alertas -->
+  <div class="alerts-container">
+    <h2>Alertas</h2>
+    <div id="alerts-list" class="alerts-list">
+      <!-- Las alertas se generarán dinámicamente en el script.js -->
+    </div>
+  </div>
+
+  <!-- Contenedor principal de la tabla -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Dispositivo</th>
+          <th>Gráfico de Conexión</th>
+          <th>Historial</th> <!-- Nueva columna para mostrar el historial -->
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- Las filas se generarán dinámicamente en el script.js -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Botón para generar reporte -->
+  <div class="report-button-container">
+    <a href="reporte.html" id="reportButton">Ver Reporte</a>
+  </div>
+
+  <div class="report-button-container">
+    <a href="consultas.html" id="reportButton">Ver Reporte</a>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

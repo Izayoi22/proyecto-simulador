@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejecutar Consulta SQL</title>
+  <link rel="stylesheet" href="style.css">  <!-- Vincula el archivo CSS -->
+</head>
+<body>
+  <div class="container">
+    <h1>Ejecutar Consulta SQL</h1>
+    
+    <!-- Formulario para ingresar la consulta SQL -->
+    <textarea id="consulta" placeholder="Escribe tu consulta SQL aquí..."></textarea><br>
+    <button onclick="ejecutarConsulta()">Ejecutar Consulta</button>
+  
+    <h2>Resultados de la Consulta</h2>
+    
+    <!-- Tabla donde se mostrarán los resultados -->
+    <table id="resultados">
+      <thead>
+        <tr>
+          <!-- Las columnas se llenarán dinámicamente -->
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Las filas de resultados se insertarán aquí -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="consulta.js"></script> <!-- Vincula el archivo JavaScript -->
+</body>
+</html>
