@@ -16,26 +16,23 @@
   <!-- Contenedor de alertas -->
   <div class="alerts-container">
     <h2>Alertas</h2>
-    <div id="alerts-list" class="alerts-list">
-      <!-- Las alertas se generarán dinámicamente en el script.js -->
-    </div>
+    <div id="alerts-list" class="alerts-list"></div>
   </div>
 
-  <!-- Contenedor principal de la tabla -->
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Dispositivo</th>
-          <th>Gráfico de Conexión</th>
-          <th>Historial</th> <!-- Nueva columna para mostrar el historial -->
-        </tr>
-      </thead>
-      <tbody id="table-body">
-        <!-- Las filas se generarán dinámicamente en el script.js -->
-      </tbody>
-    </table>
+  <!-- Sección para seleccionar el dispositivo por IP -->
+  <div class="selector-container">
+    <label for="ip-selector">Seleccionar Dispositivo (IP):</label>
+    <select id="ip-selector">
+      <option value="">Seleccionar IP</option>
+      <!-- Las opciones se llenarán dinámicamente con JavaScript -->
+    </select>
   </div>
+
+  <!-- Contenedor para mostrar el gráfico del dispositivo seleccionado -->
+  <div id="chart-container" class="chart-container">
+    <!-- El gráfico se generará dinámicamente en el script.js -->
+  </div>
+
 
   <!-- Botón para generar reporte -->
   <div class="report-button-container">
@@ -45,6 +42,7 @@
   <div class="report-button-container">
     <a href="consultas.html" id="reportButton">Ver Reporte</a>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>

@@ -1,32 +1,36 @@
-<!-- public/reporte.html -->
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reporte de Conexiones</title>
-  <link rel="stylesheet" href="style.css">  <!-- Si tienes estilos CSS -->
+  <title>Monitor de Dispositivos</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Reporte de Conexiones</h1>
+  <h1>Monitor de Dispositivos</h1>
 
-  <table id="tabla-registros">
-    <thead>
-      <tr>
-        <th>id</th>
-        <th>hora</th>
-        <th>ip</th>
-        <th>tipo caida</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Aquí se agregarán las filas con los registros -->
-    </tbody>
-  </table>
+  <!-- Selector de IP y gráfico -->
+  <div class="selector-container">
+    <label for="ip-selector">Seleccionar Dispositivo:</label>
+    <select id="ip-selector">
+      <option value="">Seleccionar IP</option>
+    </select>
+    <button id="generate-pie-chart-btn">Generar Gráfico de Pastel</button>
+  </div>
+
+  <!-- Contenedor para mostrar el gráfico -->
+  <div id="chart-container" style="width: 600px; height: 400px;"></div>
+
+  <!-- Contenedor para mostrar el gráfico de pastel -->
+  <div id="pie-chart-container" style="width: 600px; height: 400px;"></div>
+
 
   <script src="reporte.js"></script>
 </body>
 </html>
+
+
+
+
 

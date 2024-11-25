@@ -150,14 +150,16 @@ function enviarNotificacionCorreo(mensaje, ip) {
 }
 
 // Función para verificar el estado de cada dispositivo
+// Función para verificar el estado de los dispositivos
 async function verificarDispositivos() {
   for (let dispositivo of dispositivos) {
-    const res = await ping.promise.probe(dispositivo.ip, { timeout: 1000});
-    const timestamp = new Date().toLocaleTimeString();
-    const timestampFecha = new Date().toLocaleDateString();  
+    const res = await ping.promise.probe(dispositivo.ip, { timeout: 1000 });
+    const tiempo = new Date().toLocaleString();
+    const timestampFecha = new Date();  // Fecha y hora actuales (completa)
+    const timestamp = timestampFecha.toISOString();  // Hora actual (formato ISO 8601)
     const status = res.alive ? 'Conexión' : 'Sin conexión';
 
-
+    // Verificar si el estado ha cambiado
     if (dispositivo.historial.length > 0) {
       const ultimoEstado = dispositivo.historial[dispositivo.historial.length - 1].status;
       if (ultimoEstado !== status) {
@@ -166,27 +168,34 @@ async function verificarDispositivos() {
       }
     }
 
-    dispositivo.historial.push({timestampFecha, timestamp, status });
-    if (dispositivo.historial.length > 100) dispositivo.historial.shift();  // Mantener solo los últimos 10 registros
+    // Agregar al historial local
+    dispositivo.historial.push({ timestampFecha, timestamp, status,tiempo });
+    if (dispositivo.historial.length > 100) dispositivo.historial.shift();  // Mantener solo los últimos 100 registros
 
     // Llamar a la función para insertar el historial en la base de datos
     await insertarHistorialConexiones(timestampFecha, timestamp, status, dispositivo.ip);
   }
 }
+
 // Función para insertar el historial de conexiones en la base de datos
 async function insertarHistorialConexiones(timestampFecha, timestamp, status, ip) {
   try {
     const pool = await sql.connect(config);
     
+    // Convertir la hora a formato adecuado (hh:mm:ss) para SQL Server
+    const horaFormateada = formatearHora(timestamp);
+    
     const request = pool.request();
-    request.input('hora', sql.NVarChar, timestamp);  // Hora
-    request.input('ip', sql.NVarChar, ip);               // IP
+
+    // Convertir la fecha y hora a los tipos adecuados para SQL Server
+    request.input('hora', sql.NVarChar, horaFormateada);  // Convertir hora a tipo TIME
+    request.input('ip', sql.NVarChar, ip);  // IP
     request.input('tipo_caidas', sql.NVarChar, status);  // Estado
-    request.input('fecha', sql.NVarChar, timestampFecha); // Fecha
+    request.input('fecha', sql.DateTime, timestampFecha);  // Convertir fecha a tipo DATETIME
     
     const query = `
-      INSERT INTO Caidas (hora, ip, tipo_caidas,fecha)
-      VALUES ( @hora, @ip, @tipo_caidas, @fecha)
+      INSERT INTO Caidas (hora, ip, tipo_caidas, fecha)
+      VALUES ( @hora, @ip, @tipo_caidas, @fecha )
     `;
 
     await request.query(query);
@@ -194,6 +203,18 @@ async function insertarHistorialConexiones(timestampFecha, timestamp, status, ip
   } catch (error) {
     console.error('Error al insertar historial en la base de datos', error);
   }
+}
+
+
+function formatearHora(horaISO) {
+  // Usar la cadena ISO para obtener la hora exacta
+  const date = new Date(horaISO);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  // Retornar el formato adecuado para SQL Server: HH:mm:ss
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 async function obtenerRegistros() {

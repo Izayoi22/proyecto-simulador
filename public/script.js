@@ -1,48 +1,21 @@
-// script.js
-
 let previousStatus = {}; // Objeto para almacenar el estado anterior de cada dispositivo
+let dispositivos = []; // Almacenará los dispositivos obtenidos del servidor
 
-// Función para crear una fila en la tabla para cada dispositivo y agregar un gráfico
+// Función para crear un gráfico para un dispositivo
 async function crearGraficoDispositivo(dispositivo, color) {
-  const tableBody = document.getElementById('table-body');
-  
-  // Crear elementos de la fila y columnas
-  const row = document.createElement('tr');
-  const nameCell = document.createElement('td');
-  const chartCell = document.createElement('td');
-  const historyCell = document.createElement('td');  // Nueva celda para el historial
-
-  nameCell.textContent = dispositivo.nombre;
-
-  // Crear un contenedor para el gráfico
-  const chartContainer = document.createElement('div');
-  chartContainer.classList.add('chart-container');
+  const chartContainer = document.getElementById('chart-container');
+  chartContainer.innerHTML = ''; // Limpiar el contenedor antes de agregar un nuevo gráfico
 
   // Crear el canvas para el gráfico
   const canvas = document.createElement('canvas');
   chartContainer.appendChild(canvas);
-  chartCell.appendChild(chartContainer);
-
-  // Crear un elemento de lista para el historial
-  const historyList = document.createElement('ul');
-  dispositivo.historial.forEach(entry => {
-    const historyItem = document.createElement('li');
-    historyItem.textContent = `${entry.timestamp}: ${entry.status}`;
-    historyList.appendChild(historyItem);
-  });
-  historyCell.appendChild(historyList);  // Mostrar historial en la celda
-
-  row.appendChild(nameCell);
-  row.appendChild(chartCell);
-  row.appendChild(historyCell);  // Agregar la columna de historial a la fila
-  tableBody.appendChild(row);
 
   // Crear el gráfico usando Chart.js
   const ctx = canvas.getContext('2d');
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: 'line',
     data: {
-      labels: dispositivo.historial.map(entry => entry.timestamp),
+      labels: dispositivo.historial.map(entry => entry.tiempo),
       datasets: [{
         label: 'Estado de Conexión',
         data: dispositivo.historial.map(entry => entry.status === 'Conexión' ? 1 : 0),
@@ -70,21 +43,42 @@ async function crearGraficoDispositivo(dispositivo, color) {
       }
     }
   });
+}
+function registrarAlerta(mensaje, ip) {
+  const alertsList = document.getElementById('alerts-list');
 
-  return chart;
+  const alertItem = document.createElement('div');
+  alertItem.classList.add('alert-item');
+  alertItem.innerHTML = `
+    <p><strong>${mensaje}</strong></p>
+    <p>${new Date().toLocaleString()}</p>
+  `; 
+
+  alertsList.prepend(alertItem); 
+  enviarNotificacionCorreo(mensaje, ip);
 }
 
-// Función para actualizar el estado de los dispositivos en la parte superior de la página
+// Función para actualizar el estado de los dispositivos y llenar el selector de IPs
 async function actualizarEstadoDispositivos() {
   try {
-    const response = await fetch('/api/connection-status');
-    const dispositivos = await response.json();
+    const response = await fetch('/api/connection-status'); // Obtener datos del servidor
+    dispositivos = await response.json(); // Guardar la respuesta en la variable dispositivos
 
     // Limpiar el contenedor de estado de dispositivos
     const deviceStatusContainer = document.getElementById('device-status-container');
     deviceStatusContainer.innerHTML = '';
 
+    // Limpiar el selector de IPs
+    const ipSelector = document.getElementById('ip-selector');
+    ipSelector.innerHTML = '<option value="">Seleccionar IP</option>'; // Resetear el selector
+
     dispositivos.forEach(dispositivo => {
+      // Agregar cada dispositivo al selector de IPs
+      const option = document.createElement('option');
+      option.value = dispositivo.ip;
+      option.textContent = `${dispositivo.nombre} - ${dispositivo.ip}`;
+      ipSelector.appendChild(option);
+
       const card = document.createElement('div');
       card.classList.add('device-card');
 
@@ -96,12 +90,6 @@ async function actualizarEstadoDispositivos() {
       } else {
         card.classList.add('disconnected');
       }
-
-      // Verificar si el estado cambió para registrar la alerta
-      if (previousStatus[dispositivo.nombre] && previousStatus[dispositivo.nombre] !== estadoActual) {
-        registrarAlerta(`${dispositivo.nombre} ha ${estadoActual === 'Conexión' ? 'restaurado' : 'caído'}!`, dispositivo.ip);
-      }
-      previousStatus[dispositivo.nombre] = estadoActual;
 
       // Agregar información del dispositivo
       card.innerHTML = `
@@ -117,56 +105,54 @@ async function actualizarEstadoDispositivos() {
   }
 }
 
+// Función para manejar la selección de IP y mostrar el gráfico del dispositivo seleccionado
+function manejarSeleccionDeIP() {
+  const selectedIp = document.getElementById('ip-selector').value;
 
-function registrarAlerta(mensaje, ip) {
-  const alertsList = document.getElementById('alerts-list');
+  // Si no se ha seleccionado ninguna IP, limpiar el gráfico
+  if (!selectedIp) {
+    document.getElementById('chart-container').innerHTML = '';
+    return;
+  }
 
-  const alertItem = document.createElement('div');
-  alertItem.classList.add('alert-item');
-  alertItem.innerHTML = `
-    <p><strong>${mensaje}</strong></p>
-    <p>${new Date().toLocaleString()}</p>
-  `;
+  // Filtrar el dispositivo por IP seleccionada
+  const dispositivoSeleccionado = dispositivos.find(dispositivo => dispositivo.ip === selectedIp);
 
-  alertsList.prepend(alertItem); 
-  enviarNotificacionCorreo(mensaje, ip);
+  if (dispositivoSeleccionado) {
+    const color = 'blue'; // Puedes asignar diferentes colores si lo deseas
+    crearGraficoDispositivo(dispositivoSeleccionado, color);
+  }
 }
 
 // Función para obtener datos del servidor y actualizar los gráficos
 async function actualizarGrafico() {
   try {
     const response = await fetch('/api/connection-status');
-    const dispositivos = await response.json();
+    dispositivos = await response.json(); // Almacenar dispositivos globalmente
 
-    // Limpiar el contenido actual de la tabla
-    document.getElementById('table-body').innerHTML = '';
-
-    // Colores para diferenciar cada dispositivo
-    const colores = ['blue', 'green', 'red', 'purple', 'orange'];
-
-    // Crear un gráfico para cada dispositivo
-    dispositivos.forEach((dispositivo, index) => {
-      crearGraficoDispositivo(dispositivo, colores[index % colores.length]);
+    // Llenar el selector de IPs con los dispositivos
+    const ipSelector = document.getElementById('ip-selector');
+    dispositivos.forEach(dispositivo => {
+      const option = document.createElement('option');
+      option.value = dispositivo.ip;
+      option.textContent = `${dispositivo.nombre} - ${dispositivo.ip}`;
+      ipSelector.appendChild(option);
     });
+
+    // Agregar un event listener para manejar la selección de IP
+    ipSelector.addEventListener('change', manejarSeleccionDeIP);
   } catch (error) {
     console.error("Error al obtener datos del servidor:", error);
   }
-} 
-
-
-
-
-
-// Llamar a ambas funciones cada 5 segundos
+}
 setInterval(() => {
   actualizarGrafico();
   actualizarEstadoDispositivos();
+  registrarAlerta();
   
 
 }, 5000);
-
-// Llamar inmediatamente para obtener datos iniciales
-actualizarGrafico();
+// Llamar a las funciones al cargar la página
 actualizarEstadoDispositivos();
-
+actualizarGrafico();
 

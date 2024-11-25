@@ -10,6 +10,10 @@ body {
   background-repeat: no-repeat;
   
 }
+#consulta {
+  width: 100%; /* El textarea ocupará el 100% del ancho disponible */
+  height: 300px; /* Establece una altura de 300px */
+}
 
 h1 {
   font-size: 28px;
