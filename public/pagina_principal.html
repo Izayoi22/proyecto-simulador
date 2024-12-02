@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="stylesheet" href="pagina_principal.css">
+  <title>Inicio de Sesión</title>
+</head>
+
+<body>
+
+  <!-- Contenedor principal del login -->
+  <div class="login-container">
+   
+    <!-- Formulario de inicio de sesión -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" placeholder="Ingresa tu usuario" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+      </div>
+      <button type="submit">Iniciar sesión</button>
+    </form>
+    <!-- Mensaje de error -->
+    <div id="error-message"></div>
+    <!-- Enlace para registro -->
+  </div>
+
+  <script src="pagina_principal.js"></script>
+</body>
+
+</html>
